@@ -3,7 +3,13 @@
 // Validates authenticity of uploaded media
 // ==========================================
 
-const sharp = require('sharp');
+let sharp;
+try {
+    sharp = require('sharp');
+} catch (error) {
+    console.log('⚠️  Sharp not available - image analysis will be limited');
+    sharp = null;
+}
 const fs = require('fs');
 const path = require('path');
 
@@ -21,6 +27,13 @@ class ContentAuthenticator {
                 warnings: [],
                 metadata: {}
             };
+
+            // If sharp is not available, return basic analysis
+            if (!sharp) {
+                imageAnalysis.confidence = 80;
+                imageAnalysis.warnings.push('Image analysis limited - sharp not available');
+                return imageAnalysis;
+            }
 
             // Get image metadata
             const metadata = await sharp(filePath).metadata();

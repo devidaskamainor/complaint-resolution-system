@@ -2,9 +2,9 @@
   "name": "complaint-resolution-system",
   "version": "2.0.0",
   "description": "Professional Complaint Resolution System - Production Ready",
-  "main": "server.js",
+  "main": "backend/server-mongodb.js",
   "scripts": {
-    "start": "node backend/server.js",
+    "start": "node backend/server-mongodb.js",
     "start:mongodb": "node backend/server-mongodb.js",
     "start:production": "node backend/server-production.js",
     "dev": "nodemon backend/server.js",
@@ -21,6 +21,9 @@
   ],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",

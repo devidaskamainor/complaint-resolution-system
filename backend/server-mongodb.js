@@ -30,10 +30,39 @@ const PORT = process.env.PORT || 3000;
 
 let useMongoDB = true;
 
-connectDB().catch((err) => {
-    console.log('⚠️  MongoDB not available, using JSON database fallback');
-    useMongoDB = false;
-});
+// Wait for MongoDB connection before starting server
+const startServer = async () => {
+    try {
+        await connectDB();
+        console.log('✅ MongoDB connected successfully');
+    } catch (error) {
+        console.log('⚠️  MongoDB not available, using JSON database fallback');
+        console.log('Error:', error.message);
+        useMongoDB = false;
+    }
+
+    // ==========================================
+    // START SERVER
+    // ==========================================
+
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`
+╔═══════════════════════════════════════════════╗
+║   🚀 Complaint Resolution System Server      ║
+║   📡 Running on: http://localhost:${PORT}       ║
+║   📊 API Base: http://localhost:${PORT}/api     ║
+║   🌐 Frontend: http://localhost:${PORT}         ║
+║   💾 Database: ${useMongoDB ? 'MongoDB' : 'JSON (Fallback)'}               
+╚═══════════════════════════════════════════════╝
+        `);
+        console.log('✅ Server is running and ready to accept requests!');
+        console.log('\n💡 For 1 lakh users, ensure MongoDB is connected!');
+    });
+};
+
+startServer();
+
+module.exports = app;
 
 // ==========================================
 // MIDDLEWARE
@@ -113,22 +142,4 @@ cron.schedule('0 * * * *', async () => {
     await autoEscalateComplaints();
 });
 
-// ==========================================
-// START SERVER
-// ==========================================
 
-app.listen(PORT, () => {
-    console.log(`
-╔═══════════════════════════════════════════════╗
-║   🚀 Complaint Resolution System Server      ║
-║   📡 Running on: http://localhost:${PORT}       ║
-║   📊 API Base: http://localhost:${PORT}/api     ║
-║   🌐 Frontend: http://localhost:${PORT}         ║
-║   💾 Database: ${useMongoDB ? 'MongoDB' : 'JSON (Fallback)'}               
-╚═══════════════════════════════════════════════╝
-    `);
-    console.log('✅ Server is running and ready to accept requests!');
-    console.log('\n💡 For 1 lakh users, ensure MongoDB is connected!');
-});
-
-module.exports = app;
