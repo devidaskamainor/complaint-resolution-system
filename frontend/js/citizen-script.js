@@ -647,11 +647,14 @@ function renderComplaints() {
 
 async function submitComplaint(complaintData) {
     try {
+        console.log('=== SUBMIT COMPLAINT START ===');
         console.log('Submitting complaint:', complaintData);
+        console.log('Current user:', currentUser);
         
         // Check if user is logged in
         if (!currentUser) {
-            showSubmitMessage('Please login to submit a complaint', 'danger');
+            console.log('❌ No user logged in');
+            showSubmitMessage('⚠️ Please login first to submit a complaint', 'danger');
             return false;
         }
         
@@ -660,14 +663,14 @@ async function submitComplaint(complaintData) {
         complaintData.email = currentUser.email;
         complaintData.phone = currentUser.phone || '';
         
-        console.log('Complaint data with user info:', complaintData);
+        console.log('✅ Complaint data with user info:', complaintData);
         
         const response = await api.createComplaint(complaintData);
         
-        console.log('Complaint response:', response);
+        console.log('✅ Response received:', response);
         
         if (response.success) {
-            showSubmitMessage(`Complaint submitted successfully! Your Complaint ID: <strong>${response.data.id}</strong>`, 'success');
+            showSubmitMessage(`✅ Complaint submitted successfully! Your Complaint ID: <strong>${response.data.id}</strong>`, 'success');
             
             // Reset form
             document.getElementById('complaintForm').reset();
@@ -676,16 +679,24 @@ async function submitComplaint(complaintData) {
             loadMyComplaints();
             
             return true;
+        } else {
+            console.log('❌ Response not successful:', response);
+            showSubmitMessage('❌ ' + (response.message || 'Failed to submit complaint'), 'danger');
+            return false;
         }
     } catch (error) {
-        console.error('Complaint submission error:', error);
+        console.error('❌ COMPLAINT SUBMISSION ERROR:', error);
+        console.error('Error details:', error.message);
+        console.error('Error stack:', error.stack);
         
-        let errorMessage = 'Error submitting complaint. ';
+        let errorMessage = '❌ Error submitting complaint. ';
         
-        if (error.message.includes('fetch') || error.message.includes('Network')) {
-            errorMessage = 'Network error. Please check your internet connection.';
-        } else if (error.message.includes('login') || error.message.includes('auth')) {
-            errorMessage = 'Please login again to submit a complaint.';
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            errorMessage = '❌ Network error. Please check your internet connection and try again.';
+        } else if (error.message.includes('401') || error.message.includes('login')) {
+            errorMessage = '❌ Please login again to submit a complaint.';
+        } else if (error.message.includes('400')) {
+            errorMessage = '❌ Please fill in all required fields correctly.';
         } else {
             errorMessage += error.message || 'Please try again.';
         }
