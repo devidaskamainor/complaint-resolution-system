@@ -15,11 +15,30 @@ router.post('/register', async (req, res) => {
     try {
         const { name, email, password, role, phone, department } = req.body;
 
+        console.log('Registration attempt:', { name, email, role, phone });
+
         // Validate required fields
         if (!name || !email || !password || !role) {
             return res.status(400).json({
                 success: false,
                 message: 'Name, email, password, and role are required'
+            });
+        }
+
+        // Validate password length
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters long'
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^\S+@\S+\.\S+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid email address'
             });
         }
 
@@ -43,6 +62,8 @@ router.post('/register', async (req, res) => {
             isActive: true, // All users active immediately
             isEmailVerified: true // No OTP needed
         });
+
+        console.log('User created successfully:', user.id);
 
         // Generate JWT token
         const token = jwt.sign(
@@ -68,6 +89,24 @@ router.post('/register', async (req, res) => {
         });
     } catch (error) {
         console.error('Registration error:', error);
+        
+        // Handle Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({
+                success: false,
+                message: messages.join(', ')
+            });
+        }
+        
+        // Handle duplicate key error
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'User with this email already exists'
+            });
+        }
+        
         res.status(500).json({
             success: false,
             message: 'Error registering user',
@@ -82,6 +121,8 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        console.log('Login attempt:', email);
 
         // Validate required fields
         if (!email || !password) {
@@ -136,6 +177,8 @@ router.post('/login', async (req, res) => {
                 await user.save();
             }
         }
+
+        console.log('Login successful:', user.id);
 
         // Generate JWT token
         const token = jwt.sign(
