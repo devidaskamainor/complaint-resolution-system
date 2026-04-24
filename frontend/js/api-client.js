@@ -15,7 +15,9 @@ class APIClient {
     // ==========================================
 
     async register(userData) {
+        console.log('API Register called with:', userData);
         const response = await this.post('/auth/register', userData);
+        console.log('API Register response:', response);
         if (response.success) {
             this.token = response.data.token;
             localStorage.setItem('authToken', this.token);
@@ -212,15 +214,24 @@ class APIClient {
                 config.body = JSON.stringify(data);
             }
 
-            const response = await fetch(`${this.baseURL}${endpoint}`, config);
+            const fullUrl = `${this.baseURL}${endpoint}`;
+            console.log('Making API request to:', fullUrl, 'Method:', method, 'Data:', data);
+            
+            const response = await fetch(fullUrl, config);
+            
+            console.log('Response status:', response.status, response.statusText);
+            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
             
             // Check if response is JSON
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Non-JSON response:', text);
                 throw new Error(`Server error: ${response.status} ${response.statusText}`);
             }
             
             const result = await response.json();
+            console.log('Response body:', result);
 
             if (!response.ok) {
                 throw new Error(result.message || 'Request failed');
