@@ -29,11 +29,13 @@ const cron = require('node-cron');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Force JSON database for now - simpler and works immediately
+let useMongoDB = false;
+console.log('📝 Using JSON Database (Simple & Reliable)');
+
 // ==========================================
 // CONNECT TO MONGODB
 // ==========================================
-
-let useMongoDB = true;
 
 // Wait for MongoDB connection before starting server
 const startServer = async () => {
