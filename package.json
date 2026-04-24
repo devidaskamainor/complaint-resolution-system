@@ -1,0 +1,48 @@
+{
+  "name": "complaint-resolution-system",
+  "version": "2.0.0",
+  "description": "Professional Complaint Resolution System - Production Ready",
+  "main": "server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "start:mongodb": "node backend/server-mongodb.js",
+    "start:production": "node backend/server-production.js",
+    "dev": "nodemon backend/server.js",
+    "dev:mongodb": "nodemon backend/server-mongodb.js",
+    "test": "autocannon -c 100 -d 10 http://localhost:3000/api/complaints/all"
+  },
+  "keywords": [
+    "complaint",
+    "resolution",
+    "system",
+    "backend",
+    "api",
+    "production"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cluster": "^0.7.1",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "exifreader": "^4.38.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.5.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "node-cache": "^5.1.2",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.5",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

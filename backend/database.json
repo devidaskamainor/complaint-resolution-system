@@ -1,0 +1,198 @@
+{
+  "users": [
+    {
+      "id": "U0001",
+      "name": "Devidas",
+      "email": "abc@gmail.com",
+      "password": "$2a$10$wHXUwLObMd.WTfiLDB0Ti.TcGSGWNXo2ellmuuswTLULkjBvdWR0.",
+      "role": "citizen",
+      "phone": "9108540427",
+      "department": "",
+      "isActive": true,
+      "createdAt": "2026-04-23T16:50:10.444Z",
+      "updatedAt": "2026-04-23T16:50:10.444Z"
+    },
+    {
+      "id": "U0002",
+      "name": "Jeevan",
+      "email": "devidaskamainor2005@gmail.com",
+      "password": "$2a$10$2vaMsn2Ac/zpEtuStK...OcJ294/J69jedZTj0BlLxHUJ90wjmobC",
+      "role": "citizen",
+      "phone": "9108540427",
+      "department": "",
+      "isActive": true,
+      "createdAt": "2026-04-23T16:59:09.274Z",
+      "updatedAt": "2026-04-23T16:59:09.274Z"
+    },
+    {
+      "id": "U0003",
+      "name": "Bhagya",
+      "email": "ada@gmail.com",
+      "password": "$2a$10$ChiFgX1DneiJKqHyvOMmzuaY2k98yNwzzZthrcfuJSBBi.85PH9mq",
+      "role": "officer",
+      "phone": "6362434213",
+      "department": "keb depaertment",
+      "isActive": true,
+      "createdAt": "2026-04-23T17:02:30.852Z",
+      "updatedAt": "2026-04-23T17:02:30.852Z"
+    },
+    {
+      "id": "U0004",
+      "name": "Chetan",
+      "email": "cheta@gmail.com",
+      "password": "$2a$10$xMWiS/PHZa8/sgY2i.kkP.6ciyvUMCjbMV2P53aqPuWTtjzY1hxqi",
+      "role": "citizen",
+      "phone": "+918073336031",
+      "department": "",
+      "isActive": true,
+      "createdAt": "2026-04-23T17:07:29.942Z",
+      "updatedAt": "2026-04-23T17:07:29.942Z"
+    },
+    {
+      "id": "U0005",
+      "name": "Sachin",
+      "email": "Sachin@gmail.com",
+      "password": "$2a$10$VN68MfnXyjKJsGjbRbpoo.fw7mn6n7QTeXNlDO2jnfcPbetzwKLXa",
+      "role": "citizen",
+      "phone": "6987542323",
+      "department": "",
+      "isActive": true,
+      "createdAt": "2026-04-23T17:09:26.124Z",
+      "updatedAt": "2026-04-23T17:09:26.124Z"
+    },
+    {
+      "id": "U0006",
+      "name": "Devidas Kamainor",
+      "email": "abcd@gmail.com",
+      "password": "$2a$10$L13JZp0vUyrx.W/uE3f5reXD175yedU8vuKSxIhk5KFfbGVtyBb9S",
+      "role": "officer",
+      "phone": "9108511670",
+      "department": "Health",
+      "isActive": true,
+      "createdAt": "2026-04-23T17:23:35.139Z",
+      "updatedAt": "2026-04-23T17:23:35.139Z"
+    },
+    {
+      "id": "U0007",
+      "name": "devil",
+      "email": "dsa@gmail.com",
+      "password": "$2a$10$BZUjb8CtTWe/y3KykzK/Iemrw8pF5MQIIX9vy5DezxokuiekfKS1m",
+      "role": "officer",
+      "phone": "9108511674",
+      "department": "Health",
+      "isActive": true,
+      "createdAt": "2026-04-23T18:01:16.505Z",
+      "updatedAt": "2026-04-23T18:01:16.505Z"
+    }
+  ],
+  "complaints": [
+    {
+      "id": "C0003",
+      "name": "Chetan",
+      "email": "cheta@gmail.com",
+      "phone": "+918073336031",
+      "title": "Education",
+      "description": "Proper education not given ",
+      "location": "hassan",
+      "category": "other",
+      "priority": "urgent",
+      "photo": null,
+      "voice": null,
+      "createdBy": "U0004",
+      "status": "resolved",
+      "level": 1,
+      "timeline": [
+        {
+          "status": "submitted",
+          "timestamp": "2026-04-23T17:08:12.062Z",
+          "note": "Complaint submitted by citizen"
+        },
+        {
+          "status": "in_progress",
+          "timestamp": "2026-04-23T17:10:12.581Z",
+          "note": "Status updated by Bhagya",
+          "updatedBy": "U0003"
+        },
+        {
+          "status": "resolved",
+          "timestamp": "2026-04-23T17:23:47.086Z",
+          "note": "Status updated by Devidas Kamainor",
+          "updatedBy": "U0006"
+        }
+      ],
+      "createdAt": "2026-04-23T17:08:12.062Z",
+      "updatedAt": "2026-04-23T17:23:47.086Z",
+      "note": "Status updated by Devidas Kamainor",
+      "updatedBy": "U0006"
+    },
+    {
+      "id": "C0002",
+      "name": "Jeevan",
+      "email": "devidaskamainor2005@gmail.com",
+      "phone": "9108540427",
+      "title": "electricity",
+      "description": "biil isuess",
+      "location": "Hassan",
+      "category": "electricity",
+      "priority": "medium",
+      "photo": null,
+      "voice": null,
+      "createdBy": "U0002",
+      "status": "resolved",
+      "level": 1,
+      "timeline": [
+        {
+          "status": "submitted",
+          "timestamp": "2026-04-23T17:00:08.832Z",
+          "note": "Complaint submitted by citizen"
+        },
+        {
+          "status": "in_progress",
+          "timestamp": "2026-04-23T17:03:37.067Z",
+          "note": "Status updated by Bhagya",
+          "updatedBy": "U0003"
+        },
+        {
+          "status": "resolved",
+          "timestamp": "2026-04-23T17:03:47.466Z",
+          "note": "Status updated by Bhagya",
+          "updatedBy": "U0003"
+        }
+      ],
+      "createdAt": "2026-04-23T17:00:08.832Z",
+      "updatedAt": "2026-04-23T17:03:47.466Z",
+      "note": "Status updated by Bhagya",
+      "updatedBy": "U0003"
+    },
+    {
+      "id": "C0001",
+      "name": "Devidas",
+      "email": "abc@gmail.com",
+      "phone": "9108540427",
+      "title": "Road",
+      "description": "Road",
+      "location": "Hassan",
+      "category": "roads",
+      "priority": "urgent",
+      "photo": null,
+      "voice": null,
+      "createdBy": "U0001",
+      "status": "pending",
+      "level": 1,
+      "timeline": [
+        {
+          "status": "submitted",
+          "timestamp": "2026-04-23T16:51:10.518Z",
+          "note": "Complaint submitted by citizen"
+        }
+      ],
+      "createdAt": "2026-04-23T16:51:10.518Z",
+      "updatedAt": "2026-04-23T16:51:10.518Z"
+    }
+  ],
+  "escalations": [],
+  "metadata": {
+    "complaintCounter": 3,
+    "createdAt": "2026-04-23T15:44:27.196Z"
+  }
+}

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Officer Portal - Complaint Resolution System</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/portal-styles.css">
+</head>
+<body>
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-shield-alt"></i> Officer Portal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <!-- Guest Links (Shown when not logged in) -->
+                    <li class="nav-item guest-only">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item guest-only">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </li>
+                    
+                    <!-- Authenticated Links (Shown when logged in) -->
+                    <li class="nav-item auth-only" style="display: none;">
+                        <a class="nav-link" href="#dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item auth-only" style="display: none;">
+                        <a class="nav-link" href="#analytics">Analytics</a>
+                    </li>
+                    <li class="nav-item auth-only" style="display: none;">
+                        <a class="nav-link" href="#manage">Manage Complaints</a>
+                    </li>
+                    <li class="nav-item auth-only" style="display: none;">
+                        <span class="nav-link text-warning">
+                            <i class="fas fa-user-shield"></i> <span id="userName"></span>
+                        </span>
+                    </li>
+                    <li class="nav-item auth-only" style="display: none;">
+                        <a class="nav-link" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-sign-in-alt"></i> Login to Officer Portal</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email *</label>
+                            <input type="email" class="form-control" id="loginEmail" required placeholder="officer@gov.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Password *</label>
+                            <input type="password" class="form-control" id="loginPassword" required placeholder="Enter password">
+                        </div>
+                        <div class="mb-3 text-end">
+                            <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="text-success fw-bold" style="font-size: 0.9rem;">
+                                <i class="fas fa-key"></i> Forgot Password?
+                            </a>
+                        </div>
+                        <div id="loginMessage"></div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
+                    <hr>
+                    <p class="text-center text-muted mb-0">
+                        Don't have an account? 
+                        <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal" class="text-success fw-bold">Register here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-user-shield"></i> Register as Officer</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Full Name *</label>
+                            <input type="text" class="form-control" id="registerName" required placeholder="Officer Name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email *</label>
+                            <input type="email" class="form-control" id="registerEmail" required placeholder="officer@gov.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Phone *</label>
+                            <input type="tel" class="form-control" id="registerPhone" required placeholder="+91 1234567890">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Department *</label>
+                            <select class="form-select" id="registerDepartment" required>
+                                <option value="">Select your department...</option>
+                                <option value="Water Supply">💧 Water Supply</option>
+                                <option value="Electricity">⚡ Electricity</option>
+                                <option value="Roads & Infrastructure">🛣️ Roads & Infrastructure</option>
+                                <option value="Sanitation">🧹 Sanitation</option>
+                                <option value="Healthcare">🏥 Healthcare</option>
+                                <option value="Education">📚 Education</option>
+                                <option value="Public Safety">🚔 Public Safety</option>
+                                <option value="Transportation">🚌 Transportation</option>
+                                <option value="Environment">🌳 Environment</option>
+                                <option value="Public Works">🏗️ Public Works</option>
+                                <option value="Telecommunication">📡 Telecommunication</option>
+                                <option value="Revenue Department">💰 Revenue Department</option>
+                            </select>
+                            <small class="text-muted">Select the department you belong to</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Password *</label>
+                            <input type="password" class="form-control" id="registerPassword" required minlength="6" placeholder="Minimum 6 characters">
+                            <small class="text-muted">Minimum 6 characters</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Confirm Password *</label>
+                            <input type="password" class="form-control" id="registerConfirmPassword" required placeholder="Re-enter password">
+                        </div>
+                        <div id="registerMessage"></div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus"></i> Register as Officer
+                        </button>
+                    </form>
+                    <hr>
+                    <p class="text-center text-muted mb-0">
+                        Already have an account? 
+                        <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal" class="text-success fw-bold">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title"><i class="fas fa-key"></i> Reset Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Step 1: Request Reset -->
+                    <div id="forgotStep1">
+                        <p class="text-muted mb-3">Enter your email address and we'll send you a reset token.</p>
+                        <form id="forgotPasswordForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Email *</label>
+                                <input type="email" class="form-control" id="forgotEmail" required placeholder="officer@gov.com">
+                            </div>
+                            <div id="forgotMessage"></div>
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="fas fa-paper-plane"></i> Send Reset Token
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: Enter Token & New Password -->
+                    <div id="forgotStep2" style="display: none;">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> <strong>Development Mode:</strong> Check the response for your reset token
+                        </div>
+                        <form id="resetPasswordForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Reset Token *</label>
+                                <input type="text" class="form-control" id="resetToken" required placeholder="Enter 64-character token">
+                                <small class="text-muted">Token shown in development mode response</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">New Password *</label>
+                                <input type="password" class="form-control" id="newPassword" required minlength="6" placeholder="Minimum 6 characters">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Confirm New Password *</label>
+                                <input type="password" class="form-control" id="confirmNewPassword" required placeholder="Re-enter new password">
+                            </div>
+                            <div id="resetMessage"></div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check"></i> Reset Password
+                            </button>
+                        </form>
+                    </div>
+
+                    <hr>
+                    <p class="text-center text-muted mb-0">
+                        Remember your password? 
+                        <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal" class="text-success fw-bold">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Section (Show only when logged in) -->
+    <section class="py-4 bg-white border-bottom auth-only" style="display: none;">
+        <div class="container">
+            <h2 class="fw-bold mb-2">Officer Dashboard 👮</h2>
+            <p class="text-muted">Welcome, <span id="welcomeName">Officer</span>! Manage complaints and escalate when needed</p>
+        </div>
+    </section>
+
+    <!-- Guest Message (Show when not logged in) -->
+    <section class="py-5 bg-light guest-only">
+        <div class="container text-center">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow">
+                        <div class="card-body p-5">
+                            <i class="fas fa-user-shield fa-4x text-success mb-4"></i>
+                            <h2 class="fw-bold mb-3">Officer Access Required</h2>
+                            <p class="text-muted mb-4">You must login or register as an officer to manage complaints</p>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </button>
+                                <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                    <i class="fas fa-user-plus"></i> Register as Officer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Cards (Auth only) -->
+    <section id="dashboard" class="py-4 auth-only" style="display: none;">
+        <div class="container">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="totalO" class="fw-bold text-primary">0</h3>
+                        <p class="text-muted">Total</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="pendingO" class="fw-bold text-warning">0</h3>
+                        <p class="text-muted">📬 Pending</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="inProgressO" class="fw-bold text-info">0</h3>
+                        <p class="text-muted">⚙️ In Progress</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="resolvedO" class="fw-bold text-success">0</h3>
+                        <p class="text-muted">✅ Resolved</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analytics Dashboard (Auth only) -->
+    <section id="analytics" class="py-5 auth-only" style="display: none;">
+        <div class="container">
+            <h2 class="fw-bold mb-4"><i class="fas fa-chart-line"></i> Analytics Dashboard</h2>
+
+            <!-- Overview Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="analyticsTotal" class="fw-bold text-primary">0</h3>
+                        <p class="text-muted mb-0">Total Complaints</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="analyticsResolved" class="fw-bold text-success">0</h3>
+                        <p class="text-muted mb-0">Resolved</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="analyticsAvgTime" class="fw-bold text-info">0h</h3>
+                        <p class="text-muted mb-0">Avg Resolution Time</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="analyticsAvgRating" class="fw-bold text-warning">0⭐</h3>
+                        <p class="text-muted mb-0">Avg Rating</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-chart-pie"></i> By Category</h5>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-circle-notch"></i> By Status</h5>
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-layer-group"></i> By Priority</h5>
+                        <canvas id="priorityChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-star"></i> Ratings</h5>
+                        <canvas id="ratingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-chart-line"></i> Monthly Trends</h5>
+                        <canvas id="monthlyTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-calendar"></i> Last 7 Days</h5>
+                        <canvas id="recentActivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Manage Complaints (Auth only) -->
+    <section id="manage" class="py-5 bg-light auth-only" style="display: none;">
+        <div class="container">
+            <h2 class="fw-bold mb-4">
+                <i class="fas fa-list-check"></i> Manage Complaints
+            </h2>
+
+            <!-- Filter -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="searchO" 
+                           placeholder="Search complaint ID or citizen name...">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="filterStatusO">
+                        <option value="">All Status</option>
+                        <option value="pending">📬 Pending</option>
+                        <option value="in_progress">⚙️ In Progress</option>
+                        <option value="escalated">⬆️ Escalated</option>
+                        <option value="approved">👍 Approved</option>
+                        <option value="resolved">✅ Done</option>
+                        <option value="rejected">❌ Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-outline-secondary w-100" onclick="loadAllComplaints()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Citizen</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintsTableO">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Complaint Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="detailsContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <div id="actionButtons"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Escalation Modal -->
+    <div class="modal fade" id="escalationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-arrow-up"></i> Escalation History
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="escalationContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p class="mb-0">
+                © 2026 Complaint Resolution System - Officer Portal
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="/js/theme-toggle.js"></script>
+    <script src="/js/api-client.js"></script>
+    <script src="/js/officer-script.js"></script>
+</body>
+</html>

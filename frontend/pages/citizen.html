@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Portal - Complaint Resolution System</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/portal-styles.css">
+</head>
+<body>
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-landmark"></i> Citizen Portal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <!-- Guest Links (Shown when not logged in) -->
+                    <li class="nav-item guest-only">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item guest-only">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </li>
+                    
+                    <!-- Authenticated Links (Shown when logged in) -->
+                    <li class="nav-item auth-only" style="display: none;">
+                        <a class="nav-link" href="#file">File Complaint</a>
+                    </li>
+                    <li class="nav-item auth-only" style="display: none;">
+                        <a class="nav-link" href="#my-complaints">My Complaints</a>
+                    </li>
+                    <li class="nav-item auth-only" style="display: none;">
+                        <a class="nav-link" href="#track">Track Status</a>
+                    </li>
+                    <li class="nav-item auth-only" style="display: none;">
+                        <span class="nav-link text-warning">
+                            <i class="fas fa-user-circle"></i> <span id="userName"></span>
+                        </span>
+                    </li>
+                    <li class="nav-item auth-only" style="display: none;">
+                        <a class="nav-link" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-sign-in-alt"></i> Login to Citizen Portal</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email *</label>
+                            <input type="email" class="form-control" id="loginEmail" required placeholder="your@email.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Password *</label>
+                            <input type="password" class="form-control" id="loginPassword" required placeholder="Enter password">
+                        </div>
+                        <div class="mb-3 text-end">
+                            <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="text-primary fw-bold" style="font-size: 0.9rem;">
+                                <i class="fas fa-key"></i> Forgot Password?
+                            </a>
+                        </div>
+                        <div id="loginMessage"></div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
+                    <hr>
+                    <p class="text-center text-muted mb-0">
+                        Don't have an account? 
+                        <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal" class="text-primary fw-bold">Register here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-user-plus"></i> Register as Citizen</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Full Name *</label>
+                            <input type="text" class="form-control" id="registerName" required placeholder="John Doe">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email *</label>
+                            <input type="email" class="form-control" id="registerEmail" required placeholder="your@email.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Phone *</label>
+                            <input type="tel" class="form-control" id="registerPhone" required placeholder="+91 1234567890">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Password *</label>
+                            <input type="password" class="form-control" id="registerPassword" required minlength="6" placeholder="Minimum 6 characters">
+                            <small class="text-muted">Minimum 6 characters</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Confirm Password *</label>
+                            <input type="password" class="form-control" id="registerConfirmPassword" required placeholder="Re-enter password">
+                        </div>
+                        <div id="registerMessage"></div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-user-plus"></i> Register
+                        </button>
+                    </form>
+                    <hr>
+                    <p class="text-center text-muted mb-0">
+                        Already have an account? 
+                        <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal" class="text-primary fw-bold">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title"><i class="fas fa-key"></i> Reset Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Step 1: Request Reset -->
+                    <div id="forgotStep1">
+                        <p class="text-muted mb-3">Enter your email address and we'll send you a reset token.</p>
+                        <form id="forgotPasswordForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Email *</label>
+                                <input type="email" class="form-control" id="forgotEmail" required placeholder="your@email.com">
+                            </div>
+                            <div id="forgotMessage"></div>
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="fas fa-paper-plane"></i> Send Reset Token
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: Enter Token & New Password -->
+                    <div id="forgotStep2" style="display: none;">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> <strong>Development Mode:</strong> Check the response for your reset token
+                        </div>
+                        <form id="resetPasswordForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Reset Token *</label>
+                                <input type="text" class="form-control" id="resetToken" required placeholder="Enter 64-character token">
+                                <small class="text-muted">Token shown in development mode response</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">New Password *</label>
+                                <input type="password" class="form-control" id="newPassword" required minlength="6" placeholder="Minimum 6 characters">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Confirm New Password *</label>
+                                <input type="password" class="form-control" id="confirmNewPassword" required placeholder="Re-enter new password">
+                            </div>
+                            <div id="resetMessage"></div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check"></i> Reset Password
+                            </button>
+                        </form>
+                    </div>
+
+                    <hr>
+                    <p class="text-center text-muted mb-0">
+                        Remember your password? 
+                        <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal" class="text-primary fw-bold">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Section (Show only when logged in) -->
+    <section class="py-4 bg-white border-bottom auth-only" style="display: none;">
+        <div class="container">
+            <h2 class="fw-bold mb-2">Welcome, <span id="welcomeName">Citizen</span>! 👋</h2>
+            <p class="text-muted">File complaints with photos and voice messages</p>
+        </div>
+    </section>
+
+    <!-- Guest Message (Show when not logged in) -->
+    <section class="py-5 bg-light guest-only">
+        <div class="container text-center">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow">
+                        <div class="card-body p-5">
+                            <i class="fas fa-sign-in-alt fa-4x text-primary mb-4"></i>
+                            <h2 class="fw-bold mb-3">Please Login or Register</h2>
+                            <p class="text-muted mb-4">You need to login or create an account to file and track complaints</p>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </button>
+                                <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                    <i class="fas fa-user-plus"></i> Register
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Cards (Auth only) -->
+    <section class="py-4 auth-only" style="display: none;">
+        <div class="container">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="totalComplaintsC" class="fw-bold text-primary">0</h3>
+                        <p class="text-muted">Total Complaints</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="pendingComplaintsC" class="fw-bold text-warning">0</h3>
+                        <p class="text-muted">Pending</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="inProgressComplaintsC" class="fw-bold text-info">0</h3>
+                        <p class="text-muted">In Progress</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <h3 id="resolvedComplaintsC" class="fw-bold text-success">0</h3>
+                        <p class="text-muted">Resolved</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- File Complaint Section (Auth only) -->
+    <section id="file" class="py-5 bg-light auth-only" style="display: none;">
+        <div class="container">
+            <h2 class="fw-bold mb-4">
+                <i class="fas fa-file-alt"></i> File New Complaint
+            </h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow">
+                        <div class="card-body p-4">
+                            <form id="complaintForm">
+                                <!-- Complaint Details -->
+                                <div class="card mb-4 bg-light">
+                                    <div class="card-header bg-primary text-white">
+                                        <strong><i class="fas fa-clipboard"></i> Complaint Details</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Complaint Title *</label>
+                                            <input type="text" class="form-control" id="complaintTitle" 
+                                                   placeholder="e.g., Broken street light" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Description *</label>
+                                            <textarea class="form-control" id="complaintDesc" rows="4" 
+                                                      placeholder="Describe the problem in detail..." required></textarea>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Location *</label>
+                                            <input type="text" class="form-control" id="complaintLocation" 
+                                                   placeholder="e.g., Main Road, Sector 5" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Category *</label>
+                                            <select class="form-select" id="complaintCategory" required>
+                                                <option value="">Select category...</option>
+                                                <option value="Water Supply">💧 Water Supply</option>
+                                                <option value="Road & Infrastructure">🛣️ Roads & Potholes</option>
+                                                <option value="Electricity">⚡ Electricity & Lights</option>
+                                                <option value="Sanitation">🗑️ Garbage & Sanitation</option>
+                                                <option value="Healthcare">🏥 Health Services</option>
+                                                <option value="Public Safety">🚦 Traffic & Roads</option>
+                                                <option value="Education">📚 Education</option>
+                                                <option value="Transportation">🚌 Transportation</option>
+                                                <option value="Environment">🌳 Environment</option>
+                                                <option value="Other">🏢 Other</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Priority *</label>
+                                            <select class="form-select" id="complaintPriority" required>
+                                                <option value="medium">🟡 Medium (Solve in 7 days)</option>
+                                                <option value="high">🔴 High (Solve in 3 days)</option>
+                                                <option value="urgent">🚨 Urgent (Solve in 24 hours)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Media Upload Section -->
+                                <div class="card mb-4 bg-light">
+                                    <div class="card-header bg-info text-white">
+                                        <strong><i class="fas fa-camera"></i> Add Evidence (Optional)</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i> You can upload photos, videos, or record a voice message to support your complaint
+                                        </div>
+                                        
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-shield-alt"></i> <strong>Content Verification:</strong> All uploads are automatically checked for authenticity. AI-generated or fake content will be rejected.
+                                        </div>
+
+                                        <!-- Upload Type Tabs -->
+                                        <ul class="nav nav-tabs mb-3" id="mediaTabs" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" id="photo-tab" data-bs-toggle="tab" 
+                                                        data-bs-target="#photo-upload" type="button" role="tab">
+                                                    <i class="fas fa-image"></i> Photos/Video
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="voice-tab" data-bs-toggle="tab" 
+                                                        data-bs-target="#voice-upload" type="button" role="tab">
+                                                    <i class="fas fa-microphone"></i> Voice Message
+                                                </button>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content" id="mediaTabContent">
+                                            <!-- Photo/Video Upload -->
+                                            <div class="tab-pane fade show active" id="photo-upload" role="tabpanel">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Upload Photos or Videos</label>
+                                                    <input type="file" class="form-control" id="fileUpload" 
+                                                           accept="image/*,video/*" multiple>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-info-circle"></i> 
+                                                        Max 5 files, 50MB each. Allowed: JPG, PNG, GIF, MP4, AVI, MOV
+                                                    </small>
+                                                </div>
+                                                
+                                                <!-- File Preview -->
+                                                <div id="filePreview" class="row g-2 mt-2" style="display: none;">
+                                                    <!-- Preview will be added here dynamically -->
+                                                </div>
+                                            </div>
+
+                                            <!-- Voice Recording -->
+                                            <div class="tab-pane fade" id="voice-upload" role="tabpanel">
+                                                <div class="text-center p-4">
+                                                    <div class="mb-3">
+                                                        <button type="button" class="btn btn-danger btn-lg rounded-circle" 
+                                                                id="recordBtn" style="width: 80px; height: 80px;">
+                                                            <i class="fas fa-microphone fa-2x"></i>
+                                                        </button>
+                                                    </div>
+                                                    <p class="mb-2" id="recordStatus">Click to start recording</p>
+                                                    <p class="text-muted small" id="recordTimer" style="display: none;">
+                                                        Recording: <span id="timerDisplay">00:00</span>
+                                                    </p>
+                                                    
+                                                    <!-- Voice Preview -->
+                                                    <div id="voicePreview" class="mt-3" style="display: none;">
+                                                        <audio id="voiceAudio" controls class="w-100"></audio>
+                                                        <button type="button" class="btn btn-sm btn-danger mt-2" id="clearVoiceBtn">
+                                                            <i class="fas fa-trash"></i> Clear Recording
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-paper-plane"></i> Submit Complaint
+                                </button>
+                            </form>
+                            <div id="submitMessage" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- My Complaints Section (Auth only) -->
+    <section id="my-complaints" class="py-5 auth-only" style="display: none;">
+        <div class="container">
+            <h2 class="fw-bold mb-4">
+                <i class="fas fa-list"></i> My Complaints
+            </h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintsList">
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No complaints yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Track Status Section (Auth only) -->
+    <section id="track" class="py-5 bg-light auth-only" style="display: none;">
+        <div class="container">
+            <h2 class="fw-bold mb-4">
+                <i class="fas fa-search"></i> Track Complaint Status
+            </h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow">
+                        <div class="card-body p-4">
+                            <div class="input-group mb-4">
+                                <input type="text" class="form-control form-control-lg" 
+                                       id="trackId" placeholder="Enter Complaint ID (e.g., C0001)">
+                                <button class="btn btn-primary btn-lg" onclick="trackCitizenComplaint()">
+                                    <i class="fas fa-search"></i> Track
+                                </button>
+                            </div>
+                            
+                            <div id="trackingResult"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p class="mb-0">
+                © 2026 Complaint Resolution System
+            </p>
+        </div>
+    </footer>
+
+    <!-- Modal for Complaint Details -->
+    <div class="modal fade" id="complaintDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Complaint Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="complaintDetailContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback/Rating Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-star"></i> Rate Your Experience</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="feedbackContent">
+                        <h6 class="mb-3">Complaint: <span id="feedbackComplaintId"></span></h6>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">How would you rate the resolution?</label>
+                            <div class="star-rating" id="starRating">
+                                <input type="radio" id="star5" name="rating" value="5" />
+                                <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star4" name="rating" value="4" />
+                                <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star3" name="rating" value="3" />
+                                <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star2" name="rating" value="2" />
+                                <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star1" name="rating" value="1" />
+                                <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="feedbackComment" class="form-label fw-bold">Your Review (Optional)</label>
+                            <textarea class="form-control" id="feedbackComment" rows="4" 
+                                      placeholder="Share your experience with this complaint resolution..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="submitFeedback()">
+                        <i class="fas fa-paper-plane"></i> Submit Review
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/theme-toggle.js"></script>
+    <script src="/js/api-client.js"></script>
+    <script src="/js/citizen-script.js"></script>
+</body>
+</html>
