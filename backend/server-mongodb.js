@@ -68,8 +68,13 @@ module.exports = app;
 // MIDDLEWARE
 // ==========================================
 
-// Enable CORS for all routes
-app.use(cors());
+// Enable CORS for all routes - Allow requests from any origin (for mobile/deployment)
+app.use(cors({
+    origin: true, // Allow all origins
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Body parser middleware
 app.use(bodyParser.json({ limit: '50mb' }));

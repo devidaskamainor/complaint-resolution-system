@@ -3,8 +3,10 @@
 // ==========================================
 
 class APIClient {
-    constructor(baseURL = 'http://localhost:3000/api') {
-        this.baseURL = baseURL;
+    constructor() {
+        // Auto-detect the correct base URL based on current location
+        const currentUrl = window.location.origin;
+        this.baseURL = `${currentUrl}/api`;
         this.token = localStorage.getItem('authToken');
     }
 
@@ -167,6 +169,13 @@ class APIClient {
             }
 
             const response = await fetch(`${this.baseURL}${endpoint}`, config);
+            
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+            
             const result = await response.json();
 
             if (!response.ok) {
@@ -176,6 +185,10 @@ class APIClient {
             return result;
         } catch (error) {
             console.error('File Upload Error:', error);
+            // Provide more helpful error messages
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                throw new Error('Network error. Please check your internet connection.');
+            }
             throw error;
         }
     }
@@ -200,6 +213,13 @@ class APIClient {
             }
 
             const response = await fetch(`${this.baseURL}${endpoint}`, config);
+            
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+            
             const result = await response.json();
 
             if (!response.ok) {
@@ -209,6 +229,10 @@ class APIClient {
             return result;
         } catch (error) {
             console.error('API Request Error:', error);
+            // Provide more helpful error messages
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                throw new Error('Network error. Please check your internet connection.');
+            }
             throw error;
         }
     }
