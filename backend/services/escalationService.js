@@ -13,8 +13,9 @@ async function autoEscalateComplaints() {
     console.log('🔄 Running auto-escalation check...');
 
     try {
+        const escalationHours = parseInt(process.env.AUTO_ESCALATION_HOURS) || 72;
         const threeDaysAgo = new Date();
-        threeDaysAgo.setHours(threeDaysAgo.getHours() - 72); // 72 hours = 3 days
+        threeDaysAgo.setHours(threeDaysAgo.getHours() - escalationHours); // default: 72 hours = 3 days
 
         // Find complaints that need escalation
         const complaintsToEscalate = await Complaint.find({
