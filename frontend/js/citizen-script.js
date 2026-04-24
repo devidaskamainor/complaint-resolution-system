@@ -1032,6 +1032,9 @@ function setupEventListeners() {
         complaintForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            console.log('🔵 Form submit button clicked!');
+            console.log('🔵 Event listener is working!');
+            
             const complaintData = {
                 title: document.getElementById('complaintTitle').value,
                 description: document.getElementById('complaintDesc').value,
@@ -1040,13 +1043,20 @@ function setupEventListeners() {
                 priority: document.getElementById('complaintPriority').value
             };
             
+            console.log('🔵 Form data collected:', complaintData);
+            
             // Use multimedia submission if files or voice recording exist
             if (uploadedFiles.length > 0 || voiceRecordingBlob) {
+                console.log('🔵 Submitting with media');
                 await submitComplaintWithMedia(complaintData);
             } else {
+                console.log('🔵 Submitting without media');
                 await submitComplaint(complaintData);
             }
         });
+        console.log('✅ Complaint form event listener attached');
+    } else {
+        console.log('❌ Complaint form NOT found!');
     }
     
     console.log('All event listeners set up successfully');
