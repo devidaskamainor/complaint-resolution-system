@@ -16,11 +16,30 @@ router.post('/register', async (req, res) => {
     try {
         const { name, email, password, role, phone, department } = req.body;
 
+        console.log('📝 Registration attempt:', { name, email, role });
+
         // Validate required fields
-        if (!name || !email || !password || !role) {
+        if (!name || !email || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'Name, email, password, and role are required'
+                message: 'Please provide name, email, and password'
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid email address'
+            });
+        }
+
+        // Validate password length
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters'
             });
         }
 
@@ -29,7 +48,7 @@ router.post('/register', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({
                 success: false,
-                message: 'User with this email already exists'
+                message: 'This email is already registered. Please login instead.'
             });
         }
 
@@ -42,11 +61,13 @@ router.post('/register', async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role, // 'citizen' or 'officer'
+            role: role || 'citizen', // Default to citizen
             phone: phone || '',
             department: department || '',
             isActive: true
         });
+
+        console.log('✅ User created:', user.id, user.email);
 
         // Generate JWT token
         const token = jwt.sign(
@@ -57,7 +78,7 @@ router.post('/register', async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: 'User registered successfully',
+            message: 'Registration successful! Welcome!',
             data: {
                 user: {
                     id: user.id,
@@ -71,10 +92,10 @@ router.post('/register', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Registration error:', error);
+        console.error('❌ Registration error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error registering user',
+            message: 'Registration failed. Please try again.',
             error: error.message
         });
     }
@@ -87,11 +108,13 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        console.log('🔐 Login attempt:', email);
+
         // Validate required fields
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'Email and password are required'
+                message: 'Please enter email and password'
             });
         }
 
@@ -100,7 +123,7 @@ router.post('/login', async (req, res) => {
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid credentials'
+                message: 'Invalid email or password'
             });
         }
 
@@ -109,7 +132,7 @@ router.post('/login', async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid credentials'
+                message: 'Invalid email or password'
             });
         }
 
@@ -117,9 +140,11 @@ router.post('/login', async (req, res) => {
         if (!user.isActive) {
             return res.status(403).json({
                 success: false,
-                message: 'Account is deactivated'
+                message: 'Account is deactivated. Please contact support.'
             });
         }
+
+        console.log('✅ Login successful:', user.id, user.email);
 
         // Generate JWT token
         const token = jwt.sign(
@@ -130,7 +155,7 @@ router.post('/login', async (req, res) => {
 
         res.json({
             success: true,
-            message: 'Login successful',
+            message: 'Login successful! Welcome back!',
             data: {
                 user: {
                     id: user.id,
@@ -144,10 +169,10 @@ router.post('/login', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('❌ Login error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error logging in',
+            message: 'Login failed. Please try again.',
             error: error.message
         });
     }
