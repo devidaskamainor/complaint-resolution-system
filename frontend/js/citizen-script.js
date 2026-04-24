@@ -468,6 +468,15 @@ async function register(userData) {
         
         console.log('Attempting registration with:', { name: userData.name, email: userData.email, role: userData.role });
         
+        // Show loading state
+        const submitBtn = document.querySelector('#registerForm button[type="submit"]');
+        if (submitBtn) {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+            console.log('Button loading state activated');
+        }
+        
         const response = await api.register(userData);
         
         console.log('Registration response:', response);
@@ -507,6 +516,14 @@ async function register(userData) {
         
         showRegisterMessage(errorMessage, 'danger');
         return false;
+    } finally {
+        // Reset button state
+        const submitBtn = document.querySelector('#registerForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register';
+            console.log('Button state reset');
+        }
     }
 }
 
@@ -897,79 +914,107 @@ function showSubmitMessage(message, type) {
 // ==========================================
 
 function setupEventListeners() {
+    console.log('Setting up event listeners...');
+    
     // Login form
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        
-        await login(email, password);
-    });
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Login form submitted');
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            await login(email, password);
+        });
+    }
     
     // Register form
-    document.getElementById('registerForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
-        const phone = document.getElementById('registerPhone').value;
-        const password = document.getElementById('registerPassword').value;
-        const confirmPassword = document.getElementById('registerConfirmPassword').value;
-        
-        // Validate passwords match
-        if (password !== confirmPassword) {
-            showRegisterMessage('Passwords do not match', 'danger');
-            return;
-        }
-        
-        await register({ name, email, phone, password });
-    });
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        console.log('Register form found, adding event listener');
+        registerForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Register form submitted!');
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            console.log('Form values:', { name, email, phone, passwordLength: password.length });
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                console.log('Passwords do not match');
+                showRegisterMessage('Passwords do not match', 'danger');
+                return;
+            }
+            
+            console.log('Calling register function...');
+            await register({ name, email, phone, password });
+        });
+    } else {
+        console.error('Register form not found!');
+    }
     
     // Forgot Password form
-    document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('forgotEmail').value;
-        await requestPasswordReset(email);
-    });
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('forgotEmail').value;
+            await requestPasswordReset(email);
+        });
+    }
     
     // Reset Password form
-    document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const token = document.getElementById('resetToken').value;
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-        
-        // Validate passwords match
-        if (newPassword !== confirmNewPassword) {
-            showResetMessage('Passwords do not match', 'danger');
-            return;
-        }
-        
-        await resetPassword(token, newPassword);
-    });
+    const resetPasswordForm = document.getElementById('resetPasswordForm');
+    if (resetPasswordForm) {
+        resetPasswordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const token = document.getElementById('resetToken').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            // Validate passwords match
+            if (newPassword !== confirmNewPassword) {
+                showResetMessage('Passwords do not match', 'danger');
+                return;
+            }
+            
+            await resetPassword(token, newPassword);
+        });
+    }
     
     // Complaint form
-    document.getElementById('complaintForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const complaintData = {
-            title: document.getElementById('complaintTitle').value,
-            description: document.getElementById('complaintDesc').value,
-            location: document.getElementById('complaintLocation').value,
-            category: document.getElementById('complaintCategory').value,
-            priority: document.getElementById('complaintPriority').value
-        };
-        
-        // Use multimedia submission if files or voice recording exist
-        if (uploadedFiles.length > 0 || voiceRecordingBlob) {
-            await submitComplaintWithMedia(complaintData);
-        } else {
-            await submitComplaint(complaintData);
-        }
-    });
+    const complaintForm = document.getElementById('complaintForm');
+    if (complaintForm) {
+        complaintForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const complaintData = {
+                title: document.getElementById('complaintTitle').value,
+                description: document.getElementById('complaintDesc').value,
+                location: document.getElementById('complaintLocation').value,
+                category: document.getElementById('complaintCategory').value,
+                priority: document.getElementById('complaintPriority').value
+            };
+            
+            // Use multimedia submission if files or voice recording exist
+            if (uploadedFiles.length > 0 || voiceRecordingBlob) {
+                await submitComplaintWithMedia(complaintData);
+            } else {
+                await submitComplaint(complaintData);
+            }
+        });
+    }
+    
+    console.log('All event listeners set up successfully');
 }
 
 // ==========================================
