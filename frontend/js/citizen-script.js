@@ -299,7 +299,11 @@ function showGuestUI() {
 
 async function login(email, password) {
     try {
+        console.log('Attempting login with:', email);
+        
         const response = await api.login({ email, password });
+        
+        console.log('Login response:', response);
         
         if (response.success) {
             currentUser = response.data.user;
@@ -330,7 +334,23 @@ async function login(email, password) {
             return true;
         }
     } catch (error) {
-        showLoginMessage(error.message || 'Login failed', 'danger');
+        console.error('Login error:', error);
+        
+        let errorMessage = 'Login failed. ';
+        
+        if (error.message.includes('fetch') || error.message.includes('Network')) {
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (error.message.includes('credentials') || error.message.includes('Invalid')) {
+            errorMessage = 'Invalid email or password. Please try again.';
+        } else if (error.message.includes('deactivated')) {
+            errorMessage = 'Account is deactivated. Please contact support.';
+        } else if (error.message.includes('Server error')) {
+            errorMessage = 'Server error. Please try again later.';
+        } else {
+            errorMessage += error.message || 'Please try again.';
+        }
+        
+        showLoginMessage(errorMessage, 'danger');
         return false;
     }
 }
@@ -446,7 +466,11 @@ async function register(userData) {
         // Add citizen role
         userData.role = 'citizen';
         
+        console.log('Attempting registration with:', { name: userData.name, email: userData.email, role: userData.role });
+        
         const response = await api.register(userData);
+        
+        console.log('Registration response:', response);
         
         if (response.success) {
             currentUser = response.data.user;
@@ -459,7 +483,29 @@ async function register(userData) {
             return true;
         }
     } catch (error) {
-        showRegisterMessage(error.message || 'Registration failed', 'danger');
+        console.error('Registration error:', error);
+        console.error('Error details:', {
+            message: error.message,
+            name: error.name,
+            stack: error.stack
+        });
+        
+        // Show more detailed error message
+        let errorMessage = 'Registration failed. ';
+        
+        if (error.message.includes('fetch') || error.message.includes('Network')) {
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (error.message.includes('Password')) {
+            errorMessage = error.message;
+        } else if (error.message.includes('email')) {
+            errorMessage = error.message;
+        } else if (error.message.includes('Server error')) {
+            errorMessage = 'Server error. Please try again later.';
+        } else {
+            errorMessage += error.message || 'Please try again.';
+        }
+        
+        showRegisterMessage(errorMessage, 'danger');
         return false;
     }
 }
