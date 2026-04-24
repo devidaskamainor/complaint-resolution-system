@@ -33,11 +33,24 @@ let useMongoDB = true;
 // Wait for MongoDB connection before starting server
 const startServer = async () => {
     try {
+        // Check if MONGODB_URI is set
+        if (!process.env.MONGODB_URI) {
+            console.log('⚠️  MONGODB_URI environment variable is NOT set!');
+            console.log('📝 Please set MONGODB_URI in Railway environment variables');
+            throw new Error('MONGODB_URI not configured');
+        }
+        
+        console.log('✅ MONGODB_URI is configured');
         await connectDB();
         console.log('✅ MongoDB connected successfully');
     } catch (error) {
         console.log('⚠️  MongoDB not available, using JSON database fallback');
         console.log('Error:', error.message);
+        console.log('\n🔧 TO FIX ON RAILWAY:');
+        console.log('1. Go to Railway Dashboard → Your Project → Variables');
+        console.log('2. Add variable: MONGODB_URI');
+        console.log('3. Value: mongodb+srv://devuser:Devidaskamainor1228@cluster0.hpa13mi.mongodb.net/complaint-resolution-system?retryWrites=true&w=majority&appName=Cluster0');
+        console.log('4. Redeploy the application\n');
         useMongoDB = false;
     }
 
