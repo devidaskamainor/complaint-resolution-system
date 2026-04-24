@@ -7,11 +7,22 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const db = require('../database-mongodb');
 const { authMiddleware } = require('../middleware/auth');
+const { isMongoConnected } = require('../config/database');
 
 // ==========================================
 // REGISTER NEW USER
 // ==========================================
 router.post('/register', async (req, res) => {
+    // Guard: if MongoDB is not reachable, fail fast with a clear error
+    // instead of letting Mongoose buffer the query and timeout after 10 s.
+    if (!isMongoConnected()) {
+        console.log('⚠️  register: MongoDB unavailable, returning 503');
+        return res.status(503).json({
+            success: false,
+            message: 'Database is temporarily unavailable. Please try again in a moment.'
+        });
+    }
+
     try {
         const { name, email, password, role, phone, department } = req.body;
 
@@ -119,6 +130,16 @@ router.post('/register', async (req, res) => {
 // LOGIN USER
 // ==========================================
 router.post('/login', async (req, res) => {
+    // Guard: if MongoDB is not reachable, fail fast with a clear error
+    // instead of letting Mongoose buffer the query and timeout after 10 s.
+    if (!isMongoConnected()) {
+        console.log('⚠️  login: MongoDB unavailable, returning 503');
+        return res.status(503).json({
+            success: false,
+            message: 'Database is temporarily unavailable. Please try again in a moment.'
+        });
+    }
+
     try {
         const { email, password } = req.body;
 

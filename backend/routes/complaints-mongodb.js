@@ -11,6 +11,13 @@ const { authMiddleware, optionalAuth } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
 const multer = require('multer');
 const ContentAuthenticator = require('../middleware/contentAuthenticator');
+const { isMongoConnected } = require('../config/database');
+
+// JSON fallback helpers for public endpoints that bypass the route-level
+// MongoDB/JSON split (they use Mongoose models directly).
+const jsonDB = require('../database');
+const jsonComplaints = require('./complaints');
+const jsonUsers = require('./users');
 
 // ==========================================
 // CREATE NEW COMPLAINT (with file upload)
@@ -282,9 +289,20 @@ router.get('/my-complaints', authMiddleware, async (req, res) => {
 // GET OFFICER RANKINGS (Public)
 // ==========================================
 router.get('/officer-rankings', async (req, res) => {
+    // Guard: if MongoDB is not reachable, return empty rankings immediately
+    // instead of letting Mongoose buffer the query and timeout after 10 s.
+    if (!isMongoConnected()) {
+        console.log('⚠️  officer-rankings: MongoDB unavailable, returning empty rankings');
+        return res.json({
+            success: true,
+            data: [],
+            message: 'Rankings unavailable while database is offline'
+        });
+    }
+
     try {
         const User = require('../models/User');
-        
+
         // Get top 10 officers by points (no email verification required)
         const topOfficers = await User.find({
             role: 'officer',
@@ -312,9 +330,20 @@ router.get('/officer-rankings', async (req, res) => {
 // GET PUBLIC REVIEWS (No Auth Required)
 // ==========================================
 router.get('/public-reviews', async (req, res) => {
+    // Guard: if MongoDB is not reachable, return empty reviews immediately
+    // instead of letting Mongoose buffer the query and timeout after 10 s.
+    if (!isMongoConnected()) {
+        console.log('⚠️  public-reviews: MongoDB unavailable, returning empty reviews');
+        return res.json({
+            success: true,
+            data: [],
+            message: 'Reviews unavailable while database is offline'
+        });
+    }
+
     try {
         const Complaint = require('../models/Complaint');
-        
+
         // Get all complaints with feedback/ratings
         const complaintsWithFeedback = await Complaint.find({
             'feedback.rating': { $exists: true },
@@ -323,7 +352,7 @@ router.get('/public-reviews', async (req, res) => {
         .sort({ 'feedback.submittedAt': -1 })
         .limit(50)
         .select('id userName category feedback');
-        
+
         res.json({
             success: true,
             data: complaintsWithFeedback

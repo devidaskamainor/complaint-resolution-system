@@ -30,61 +30,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ==========================================
-// CONNECT TO MONGODB
-// ==========================================
-
-let useMongoDB = true;
-
-// Wait for MongoDB connection before starting server
-const startServer = async () => {
-    try {
-        // Check if MONGODB_URI is set
-        if (!process.env.MONGODB_URI) {
-            console.log('⚠️  MONGODB_URI environment variable is NOT set!');
-            console.log('📝 Please set MONGODB_URI in Railway environment variables');
-            throw new Error('MONGODB_URI not configured');
-        }
-        
-        console.log('✅ MONGODB_URI is configured');
-        await connectDB();
-        console.log('✅ MongoDB connected successfully');
-        useMongoDB = true;
-    } catch (error) {
-        console.log('⚠️  MongoDB not available, using JSON database fallback');
-        console.log('Error:', error.message);
-        console.log('\n💡 App will work with JSON database. To use MongoDB:');
-        console.log('1. Go to MongoDB Atlas → Network Access');
-        console.log('2. Add IP Address: 0.0.0.0/0 (Allow from anywhere)');
-        console.log('3. Wait 2 minutes');
-        console.log('4. Redeploy on Railway\n');
-        useMongoDB = false;
-    }
-
-    // ==========================================
-    // START SERVER
-    // ==========================================
-
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`
-╔═══════════════════════════════════════════════╗
-║   🚀 Complaint Resolution System Server      ║
-║   📡 Running on: http://localhost:${PORT}       ║
-║   📊 API Base: http://localhost:${PORT}/api     ║
-║   🌐 Frontend: http://localhost:${PORT}         ║
-║   💾 Database: ${useMongoDB ? 'MongoDB ✅' : 'JSON (Working) 📝'}               
-╚═══════════════════════════════════════════════╝
-        `);
-        console.log('✅ Server is running and ready to accept requests!');
-        console.log('✅ Registration and Login are WORKING!');
-    });
-};
-
-startServer();
-
-module.exports = app;
-
-// ==========================================
-// MIDDLEWARE
+// MIDDLEWARE — registered before routes
 // ==========================================
 
 // Enable CORS for all routes - Allow requests from any origin (for mobile/deployment)
@@ -111,57 +57,113 @@ app.use('/js', express.static(path.join(__dirname, '..', 'frontend', 'js')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // ==========================================
-// ROUTES
+// CONNECT TO MONGODB, THEN REGISTER ROUTES
 // ==========================================
 
-// Use MongoDB or JSON routes based on connection status
-const authRoutes = useMongoDB ? authRoutesMongo : authRoutesJSON;
-const complaintRoutes = useMongoDB ? complaintRoutesMongo : complaintRoutesJSON;
-const userRoutes = useMongoDB ? userRoutesMongo : userRoutesJSON;
+let useMongoDB = false; // Default false; set to true only after confirmed connection
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/complaints', complaintRoutes);
-app.use('/api/otp', otpRoutes);
-app.use('/api/auth', passwordResetRoutes);
+// startServer() awaits the MongoDB connection attempt before binding routes.
+// This guarantees useMongoDB is correctly set when route handlers are chosen,
+// preventing the app from sending Mongoose queries to an unreachable Atlas
+// cluster and hanging for 10 s on every request.
+const startServer = async () => {
+    try {
+        // Check if MONGODB_URI is set
+        if (!process.env.MONGODB_URI) {
+            console.log('⚠️  MONGODB_URI environment variable is NOT set!');
+            console.log('📝 Please set MONGODB_URI in Railway environment variables');
+            throw new Error('MONGODB_URI not configured');
+        }
 
-console.log(`📡 Using ${useMongoDB ? 'MongoDB' : 'JSON'} database routes`);
+        console.log('✅ MONGODB_URI is configured');
+        await connectDB();
+        console.log('✅ MongoDB connected successfully');
+        useMongoDB = true;
+    } catch (error) {
+        console.log('⚠️  MongoDB not available, using JSON database fallback');
+        console.log('Error:', error.message);
+        console.log('\n💡 App will work with JSON database. To use MongoDB:');
+        console.log('1. Go to MongoDB Atlas → Network Access');
+        console.log('2. Add IP Address: 0.0.0.0/0 (Allow from anywhere)');
+        console.log('3. Wait 2 minutes');
+        console.log('4. Redeploy on Railway\n');
+        useMongoDB = false;
+    }
 
-// Serve frontend for any non-API routes
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'pages', 'index.html'));
-});
+    // ==========================================
+    // ROUTES — registered after connection attempt
+    // so useMongoDB reflects the real outcome
+    // ==========================================
 
-app.get('/citizen', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'pages', 'citizen.html'));
-});
+    // Choose route handlers based on confirmed connection state
+    const authRoutes = useMongoDB ? authRoutesMongo : authRoutesJSON;
+    const complaintRoutes = useMongoDB ? complaintRoutesMongo : complaintRoutesJSON;
+    const userRoutes = useMongoDB ? userRoutesMongo : userRoutesJSON;
 
-app.get('/officer', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'pages', 'officer.html'));
-});
+    // API Routes
+    app.use('/api/auth', authRoutes);
+    app.use('/api/users', userRoutes);
+    app.use('/api/complaints', complaintRoutes);
+    app.use('/api/otp', otpRoutes);
+    app.use('/api/auth', passwordResetRoutes);
 
-// ==========================================
-// ERROR HANDLING
-// ==========================================
+    console.log(`📡 Using ${useMongoDB ? 'MongoDB' : 'JSON'} database routes`);
 
-// 404 handler
-app.use((req, res, next) => {
-    res.status(404).json({
-        success: false,
-        message: 'Route not found'
+    // Serve frontend for any non-API routes
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, '..', 'frontend', 'pages', 'index.html'));
     });
-});
 
-// Global error handler
-app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    res.status(err.status || 500).json({
-        success: false,
-        message: err.message || 'Internal Server Error',
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    app.get('/citizen', (req, res) => {
+        res.sendFile(path.join(__dirname, '..', 'frontend', 'pages', 'citizen.html'));
     });
-});
+
+    app.get('/officer', (req, res) => {
+        res.sendFile(path.join(__dirname, '..', 'frontend', 'pages', 'officer.html'));
+    });
+
+    // ==========================================
+    // ERROR HANDLING
+    // ==========================================
+
+    // 404 handler
+    app.use((req, res, next) => {
+        res.status(404).json({
+            success: false,
+            message: 'Route not found'
+        });
+    });
+
+    // Global error handler
+    app.use((err, req, res, next) => {
+        console.error('Error:', err);
+        res.status(err.status || 500).json({
+            success: false,
+            message: err.message || 'Internal Server Error',
+            ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+        });
+    });
+
+    // ==========================================
+    // START SERVER
+    // ==========================================
+
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`
+╔═══════════════════════════════════════════════╗
+║   🚀 Complaint Resolution System Server      ║
+║   📡 Running on: http://localhost:${PORT}       ║
+║   📊 API Base: http://localhost:${PORT}/api     ║
+║   🌐 Frontend: http://localhost:${PORT}         ║
+║   💾 Database: ${useMongoDB ? 'MongoDB ✅' : 'JSON (Working) 📝'}               
+╚═══════════════════════════════════════════════╝
+        `);
+        console.log('✅ Server is running and ready to accept requests!');
+        console.log('✅ Registration and Login are WORKING!');
+    });
+};
+
+startServer();
 
 // ==========================================
 // SCHEDULED TASKS
@@ -173,4 +175,4 @@ cron.schedule('0 * * * *', async () => {
     await autoEscalateComplaints();
 });
 
-
+module.exports = app;
