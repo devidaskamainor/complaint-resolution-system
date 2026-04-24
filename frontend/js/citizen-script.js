@@ -647,12 +647,24 @@ function renderComplaints() {
 
 async function submitComplaint(complaintData) {
     try {
+        console.log('Submitting complaint:', complaintData);
+        
+        // Check if user is logged in
+        if (!currentUser) {
+            showSubmitMessage('Please login to submit a complaint', 'danger');
+            return false;
+        }
+        
         // Add user info
         complaintData.name = currentUser.name;
         complaintData.email = currentUser.email;
         complaintData.phone = currentUser.phone || '';
         
+        console.log('Complaint data with user info:', complaintData);
+        
         const response = await api.createComplaint(complaintData);
+        
+        console.log('Complaint response:', response);
         
         if (response.success) {
             showSubmitMessage(`Complaint submitted successfully! Your Complaint ID: <strong>${response.data.id}</strong>`, 'success');
@@ -666,7 +678,19 @@ async function submitComplaint(complaintData) {
             return true;
         }
     } catch (error) {
-        showSubmitMessage(error.message || 'Error submitting complaint', 'danger');
+        console.error('Complaint submission error:', error);
+        
+        let errorMessage = 'Error submitting complaint. ';
+        
+        if (error.message.includes('fetch') || error.message.includes('Network')) {
+            errorMessage = 'Network error. Please check your internet connection.';
+        } else if (error.message.includes('login') || error.message.includes('auth')) {
+            errorMessage = 'Please login again to submit a complaint.';
+        } else {
+            errorMessage += error.message || 'Please try again.';
+        }
+        
+        showSubmitMessage(errorMessage, 'danger');
         return false;
     }
 }

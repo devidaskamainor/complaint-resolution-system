@@ -25,11 +25,14 @@ router.post('/create', optionalAuth, (req, res) => {
             voice
         } = req.body;
 
+        console.log('📝 Complaint submission:', { name, email, title, category });
+
         // Validate required fields
         if (!name || !email || !title || !description || !location || !category || !priority) {
+            console.log('❌ Missing required fields');
             return res.status(400).json({
                 success: false,
-                message: 'All required fields must be provided'
+                message: 'Please fill in all required fields: name, email, title, description, location, category, and priority'
             });
         }
 
@@ -48,16 +51,18 @@ router.post('/create', optionalAuth, (req, res) => {
             createdBy: req.user ? req.user.id : null
         });
 
+        console.log('✅ Complaint created:', complaint.id);
+
         res.status(201).json({
             success: true,
-            message: 'Complaint created successfully',
+            message: 'Complaint submitted successfully!',
             data: complaint
         });
     } catch (error) {
-        console.error('Create complaint error:', error);
+        console.error('❌ Create complaint error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error creating complaint',
+            message: 'Error submitting complaint. Please try again.',
             error: error.message
         });
     }
