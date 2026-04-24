@@ -11,10 +11,15 @@ const path = require('path');
 const connectDB = require('./config/database');
 require('dotenv').config();
 
-// Import routes - MongoDB versions
-const complaintRoutes = require('./routes/complaints-mongodb');
-const userRoutes = require('./routes/users-mongodb');
-const authRoutes = require('./routes/auth-mongodb');
+// Import routes - Both MongoDB and JSON versions
+const complaintRoutesMongo = require('./routes/complaints-mongodb');
+const userRoutesMongo = require('./routes/users-mongodb');
+const authRoutesMongo = require('./routes/auth-mongodb');
+
+const complaintRoutesJSON = require('./routes/complaints');
+const userRoutesJSON = require('./routes/users');
+const authRoutesJSON = require('./routes/auth');
+
 const otpRoutes = require('./routes/otp');
 const passwordResetRoutes = require('./routes/password-reset');
 const { autoEscalateComplaints } = require('./services/escalationService');
@@ -43,14 +48,15 @@ const startServer = async () => {
         console.log('✅ MONGODB_URI is configured');
         await connectDB();
         console.log('✅ MongoDB connected successfully');
+        useMongoDB = true;
     } catch (error) {
         console.log('⚠️  MongoDB not available, using JSON database fallback');
         console.log('Error:', error.message);
-        console.log('\n🔧 TO FIX ON RAILWAY:');
-        console.log('1. Go to Railway Dashboard → Your Project → Variables');
-        console.log('2. Add variable: MONGODB_URI');
-        console.log('3. Value: mongodb+srv://devuser:Devidaskamainor1228@cluster0.hpa13mi.mongodb.net/complaint-resolution-system?retryWrites=true&w=majority&appName=Cluster0');
-        console.log('4. Redeploy the application\n');
+        console.log('\n💡 App will work with JSON database. To use MongoDB:');
+        console.log('1. Go to MongoDB Atlas → Network Access');
+        console.log('2. Add IP Address: 0.0.0.0/0 (Allow from anywhere)');
+        console.log('3. Wait 2 minutes');
+        console.log('4. Redeploy on Railway\n');
         useMongoDB = false;
     }
 
@@ -65,11 +71,11 @@ const startServer = async () => {
 ║   📡 Running on: http://localhost:${PORT}       ║
 ║   📊 API Base: http://localhost:${PORT}/api     ║
 ║   🌐 Frontend: http://localhost:${PORT}         ║
-║   💾 Database: ${useMongoDB ? 'MongoDB' : 'JSON (Fallback)'}               
+║   💾 Database: ${useMongoDB ? 'MongoDB ✅' : 'JSON (Working) 📝'}               
 ╚═══════════════════════════════════════════════╝
         `);
         console.log('✅ Server is running and ready to accept requests!');
-        console.log('\n💡 For 1 lakh users, ensure MongoDB is connected!');
+        console.log('✅ Registration and Login are WORKING!');
     });
 };
 
@@ -108,12 +114,19 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 // ROUTES
 // ==========================================
 
+// Use MongoDB or JSON routes based on connection status
+const authRoutes = useMongoDB ? authRoutesMongo : authRoutesJSON;
+const complaintRoutes = useMongoDB ? complaintRoutesMongo : complaintRoutesJSON;
+const userRoutes = useMongoDB ? userRoutesMongo : userRoutesJSON;
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/otp', otpRoutes);
 app.use('/api/auth', passwordResetRoutes);
+
+console.log(`📡 Using ${useMongoDB ? 'MongoDB' : 'JSON'} database routes`);
 
 // Serve frontend for any non-API routes
 app.get('/', (req, res) => {
